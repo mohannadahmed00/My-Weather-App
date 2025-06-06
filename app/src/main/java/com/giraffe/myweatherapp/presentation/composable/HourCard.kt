@@ -1,4 +1,4 @@
-package com.giraffe.myweatherapp.composable
+package com.giraffe.myweatherapp.presentation.composable
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,7 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.giraffe.myweatherapp.R
+import com.giraffe.myweatherapp.presentation.model.HourUiModel
 import com.giraffe.myweatherapp.ui.theme.MyWeatherAppTheme
 import com.giraffe.myweatherapp.ui.theme.darkBlue
 import com.giraffe.myweatherapp.ui.theme.fontFamily
@@ -28,9 +28,7 @@ import com.giraffe.myweatherapp.ui.theme.white
 @Composable
 fun HourCard(
     modifier: Modifier = Modifier,
-    iconRes: Int = R.drawable.day_mainly_clear,
-    temperature: Int = 25,
-    hour: String = "11:00",
+    hour: HourUiModel = HourUiModel(),
     backgroundColor: Color = white.copy(alpha = .7f),
     borderColor: Color = darkBlue.copy(alpha = .08f),
 ) {
@@ -50,12 +48,12 @@ fun HourCard(
                 modifier = Modifier
                     .padding(horizontal = 12.dp)
                     .offset(y = (-12).dp),
-                painter = painterResource(iconRes),
+                painter = painterResource(hour.iconRes),
                 contentDescription = "icon"
             )
             Text(
                 modifier = Modifier.padding(vertical = 4.dp, horizontal = 26.dp),
-                text = "$temperature°C", style = TextStyle(
+                text = "${hour.temperature}°C", style = TextStyle(
                     fontFamily = fontFamily,
                     fontWeight = FontWeight.W500,
                     fontSize = 16.sp,
@@ -64,7 +62,7 @@ fun HourCard(
             )
             Text(
                 modifier = Modifier.padding(bottom = 16.dp, start = 27.5.dp, end = 27.5.dp),
-                text = hour,
+                text = hour.time,
                 style = TextStyle(
                     fontFamily = fontFamily,
                     fontWeight = FontWeight.W500,

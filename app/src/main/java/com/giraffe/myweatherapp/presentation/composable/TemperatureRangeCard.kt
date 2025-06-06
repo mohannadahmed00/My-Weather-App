@@ -1,4 +1,4 @@
-package com.giraffe.myweatherapp.composable
+package com.giraffe.myweatherapp.presentation.composable
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

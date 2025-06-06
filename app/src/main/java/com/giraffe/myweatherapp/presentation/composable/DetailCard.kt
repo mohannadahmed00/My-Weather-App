@@ -1,4 +1,4 @@
-package com.giraffe.myweatherapp.composable
+package com.giraffe.myweatherapp.presentation.composable
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -18,7 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.giraffe.myweatherapp.R
+import com.giraffe.myweatherapp.presentation.model.DetailUiModel
 import com.giraffe.myweatherapp.ui.theme.MyWeatherAppTheme
 import com.giraffe.myweatherapp.ui.theme.darkBlue
 import com.giraffe.myweatherapp.ui.theme.fontFamily
@@ -27,9 +27,7 @@ import com.giraffe.myweatherapp.ui.theme.white
 @Composable
 fun DetailCard(
     modifier: Modifier = Modifier,
-    iconRes: Int = R.drawable.fast_wind,
-    value: String = "13 KM/h",
-    label: String = "Wind",
+    detail: DetailUiModel = DetailUiModel(),
     backgroundColor: Color = white.copy(alpha = .7f),
     borderColor: Color = darkBlue.copy(alpha = .08f),
 ) {
@@ -40,7 +38,8 @@ fun DetailCard(
                 color = borderColor,
                 shape = RoundedCornerShape(24.dp)
             )
-            .background(color = backgroundColor, shape = RoundedCornerShape(24.dp))
+            .background(color = backgroundColor, shape = RoundedCornerShape(24.dp)),
+        contentAlignment = Alignment.Center
     ) {
         Column(
             modifier = modifier.padding(vertical = 16.dp, horizontal = 8.dp),
@@ -48,12 +47,12 @@ fun DetailCard(
         ) {
             Image(
                 modifier = Modifier.padding(bottom = 8.dp),
-                painter = painterResource(iconRes),
+                painter = painterResource(detail.iconRes),
                 contentDescription = "icon"
             )
             Text(
                 modifier = Modifier.padding(bottom = 2.dp),
-                text = value, style = TextStyle(
+                text = detail.value, style = TextStyle(
                     fontFamily = fontFamily,
                     fontWeight = FontWeight.W500,
                     fontSize = 20.sp,
@@ -61,7 +60,7 @@ fun DetailCard(
                 )
             )
             Text(
-                text = label, style = TextStyle(
+                text = detail.label, style = TextStyle(
                     fontFamily = fontFamily,
                     fontWeight = FontWeight.W400,
                     fontSize = 14.sp,

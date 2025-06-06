@@ -1,4 +1,4 @@
-package com.giraffe.myweatherapp.composable
+package com.giraffe.myweatherapp.presentation.composable
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.giraffe.myweatherapp.R
+import com.giraffe.myweatherapp.presentation.model.DayUiModel
 import com.giraffe.myweatherapp.ui.theme.MyWeatherAppTheme
 import com.giraffe.myweatherapp.ui.theme.darkBlue
 import com.giraffe.myweatherapp.ui.theme.fontFamily
@@ -30,20 +31,16 @@ import com.giraffe.myweatherapp.ui.theme.fontFamily
 @Composable
 fun DayCard(
     modifier: Modifier = Modifier,
-    dayName: String = "Monday",
-    iconRes: Int = R.drawable.day_mainly_clear,
-    highTemperature: Int = 32,
-    lowTemperature: Int = 20,
+    day: DayUiModel = DayUiModel()
 ) {
     Row(
         modifier = modifier
             .height(61.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
-            modifier = Modifier
-                .padding(start = 16.dp),
-            text = dayName,
+            text = day.dayName,
             style = TextStyle(
                 fontFamily = fontFamily,
                 fontWeight = FontWeight.W400,
@@ -52,12 +49,11 @@ fun DayCard(
             )
         )
         Image(
-            modifier = Modifier.padding(horizontal = 40.dp, vertical = 8.dp),
-            painter = painterResource(iconRes),
+            modifier = Modifier.padding(horizontal = 40.dp),
+            painter = painterResource(day.iconRes),
             contentDescription = "icon"
         )
         Row(
-            modifier = Modifier.padding(end = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
@@ -72,7 +68,7 @@ fun DayCard(
                     colorFilter = ColorFilter.tint(darkBlue.copy(alpha = .6f))
                 )
                 Text(
-                    text = "$highTemperature°C",
+                    text = "${day.highTemperature}°C",
                     style = TextStyle(
                         fontFamily = fontFamily,
                         fontWeight = FontWeight.W500,
@@ -102,7 +98,7 @@ fun DayCard(
                     colorFilter = ColorFilter.tint(darkBlue.copy(alpha = .6f))
                 )
                 Text(
-                    text = "$lowTemperature°C",
+                    text = "${day.lowTemperature}°C",
                     style = TextStyle(
                         fontFamily = fontFamily,
                         fontWeight = FontWeight.W500,
