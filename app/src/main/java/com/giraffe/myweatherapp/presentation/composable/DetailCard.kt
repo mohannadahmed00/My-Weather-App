@@ -18,7 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.giraffe.myweatherapp.presentation.model.DetailUiModel
+import com.giraffe.myweatherapp.R
 import com.giraffe.myweatherapp.ui.theme.MyWeatherAppTheme
 import com.giraffe.myweatherapp.ui.theme.darkBlue
 import com.giraffe.myweatherapp.ui.theme.fontFamily
@@ -27,7 +27,9 @@ import com.giraffe.myweatherapp.ui.theme.white
 @Composable
 fun DetailCard(
     modifier: Modifier = Modifier,
-    detail: DetailUiModel = DetailUiModel(),
+    iconRes: Int = R.drawable.fast_wind,
+    value: String = "13 KM/h",
+    label: String = "Wind",
     backgroundColor: Color = white.copy(alpha = .7f),
     borderColor: Color = darkBlue.copy(alpha = .08f),
 ) {
@@ -47,12 +49,12 @@ fun DetailCard(
         ) {
             Image(
                 modifier = Modifier.padding(bottom = 8.dp),
-                painter = painterResource(detail.iconRes),
+                painter = painterResource(iconRes),
                 contentDescription = "icon"
             )
             Text(
                 modifier = Modifier.padding(bottom = 2.dp),
-                text = detail.value, style = TextStyle(
+                text = value, style = TextStyle(
                     fontFamily = fontFamily,
                     fontWeight = FontWeight.W500,
                     fontSize = 20.sp,
@@ -60,7 +62,7 @@ fun DetailCard(
                 )
             )
             Text(
-                text = detail.label, style = TextStyle(
+                text = label, style = TextStyle(
                     fontFamily = fontFamily,
                     fontWeight = FontWeight.W400,
                     fontSize = 14.sp,

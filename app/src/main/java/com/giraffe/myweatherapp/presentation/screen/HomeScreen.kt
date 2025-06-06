@@ -16,13 +16,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -38,17 +39,29 @@ import com.giraffe.myweatherapp.presentation.composable.DayCard
 import com.giraffe.myweatherapp.presentation.composable.DetailCard
 import com.giraffe.myweatherapp.presentation.composable.HourCard
 import com.giraffe.myweatherapp.presentation.composable.TemperatureRangeCard
+import com.giraffe.myweatherapp.presentation.viewmodel.HomeUiState
+import com.giraffe.myweatherapp.presentation.viewmodel.HomeViewModel
 import com.giraffe.myweatherapp.ui.theme.MyWeatherAppTheme
 import com.giraffe.myweatherapp.ui.theme.darkBlue
 import com.giraffe.myweatherapp.ui.theme.fontFamily
 import com.giraffe.myweatherapp.ui.theme.gray
 import com.giraffe.myweatherapp.ui.theme.lightBlue
 import com.giraffe.myweatherapp.ui.theme.white
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    viewModel: HomeViewModel = koinViewModel()
+) {
+    val state by viewModel.state.collectAsState()
+    HomeContent(state)
+}
+
+@Composable
+fun HomeContent(state: HomeUiState) {
     Box(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .background(brush = Brush.verticalGradient(listOf(lightBlue, white)))
     ) {
@@ -72,7 +85,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                     colorFilter = ColorFilter.tint(gray)
                 )
                 Text(
-                    text = "Baghdad",
+                    text = state.locationName,
                     style = TextStyle(
                         fontFamily = fontFamily,
                         fontWeight = FontWeight.W500,
@@ -86,11 +99,11 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                     .height(200.dp)
                     .fillMaxWidth()
                     .padding(bottom = 12.dp),
-                painter = painterResource(R.drawable.day_mainly_clear),
+                painter = painterResource(state.currentWeatherIcon),
                 contentDescription = "icon",
             )
             Text(
-                text = "24°C",
+                text = "${state.currentTemperature}°C",
                 style = TextStyle(
                     fontFamily = fontFamily,
                     fontWeight = FontWeight.W600,
@@ -100,7 +113,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             )
             Text(
                 modifier = Modifier.padding(bottom = 12.dp),
-                text = "Partly cloudy",
+                text = state.currentWeatherDescription,
                 style = TextStyle(
                     fontFamily = fontFamily,
                     fontWeight = FontWeight.W500,
@@ -108,16 +121,54 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                     color = darkBlue.copy(alpha = .6f)
                 )
             )
-            TemperatureRangeCard()
-            LazyVerticalGrid(
+            TemperatureRangeCard(
+                highTemperature = state.currentHighTemperature,
+                lowTemperature = state.currentLowTemperature
+            )
+            Row(
                 modifier = Modifier
-                    .padding(vertical = 24.dp, horizontal = 12.dp)
-                    .height(250.dp),
-                columns = GridCells.Fixed(3),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    .fillMaxWidth()
+                    .padding(start = 12.dp, end = 12.dp, top = 24.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                items(6) { DetailCard() }
+                DetailCard(modifier = Modifier.weight(1f), value = "${state.windFast} KM/h")
+                DetailCard(
+                    modifier = Modifier.weight(1f),
+                    iconRes = R.drawable.humidity,
+                    value = "${state.humidity}%",
+                    label = "Humidity"
+                )
+                DetailCard(
+                    modifier = Modifier.weight(1f),
+                    iconRes = R.drawable.rain,
+                    value = "${state.rain}%",
+                    label = "Rain"
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 12.dp, end = 12.dp, top = 6.dp, bottom = 24.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                DetailCard(
+                    modifier = Modifier.weight(1f),
+                    iconRes = R.drawable.uv,
+                    value = "${state.humidity}%",
+                    label = "Humidity"
+                )
+                DetailCard(
+                    modifier = Modifier.weight(1f),
+                    iconRes = R.drawable.pressure,
+                    value = "${state.rain} hPa",
+                    label = "Pressure"
+                )
+                DetailCard(
+                    modifier = Modifier.weight(1f),
+                    iconRes = R.drawable.temperature,
+                    value = "${state.feelsLike}°C",
+                    label = "Feels like"
+                )
             }
             Text(
                 modifier = Modifier
@@ -136,7 +187,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 contentPadding = PaddingValues(horizontal = 12.dp)
             ) {
-                items(6) { HourCard() }
+                items(state.hourlyTemperatures) { HourCard(hour = it) }
             }
             Text(
                 modifier = Modifier
@@ -161,13 +212,14 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                     )
                     .background(white.copy(alpha = .6f), shape = RoundedCornerShape(24.dp))
             ) {
-                (0..6).forEach {
+                state.dailyTemperatures.forEachIndexed { index, item ->
                     DayCard(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        day = item
                     )
-                    if (it != 6) Spacer(
+                    if (index != state.dailyTemperatures.size - 1) Spacer(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(1.dp)
