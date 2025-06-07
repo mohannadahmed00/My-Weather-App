@@ -9,4 +9,5 @@ enum class NetworkError: DomainError {
     SERVER_ERROR,
     SERIALIZATION,
     UNKNOWN,
+    LOCATION_FETCH_ERROR,
 }

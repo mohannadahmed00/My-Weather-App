@@ -9,10 +9,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.giraffe.myweatherapp.presentation.HomeScreen
 import com.giraffe.myweatherapp.ui.theme.MyWeatherAppTheme
+
+val LocalActivity = staticCompositionLocalOf<ComponentActivity> { error("LocalContext") }
 
 class MainActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -22,7 +26,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MyWeatherAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) {
-                    HomeScreen()
+                    CompositionLocalProvider(LocalActivity provides this) { HomeScreen() }
                 }
             }
         }

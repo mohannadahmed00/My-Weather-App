@@ -1,5 +1,8 @@
 package com.giraffe.myweatherapp.presentation
 
+import android.Manifest
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,24 +25,32 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.giraffe.myweatherapp.LocalActivity
 import com.giraffe.myweatherapp.R
 import com.giraffe.myweatherapp.presentation.composable.DayCard
 import com.giraffe.myweatherapp.presentation.composable.DetailCard
 import com.giraffe.myweatherapp.presentation.composable.HourCard
+import com.giraffe.myweatherapp.presentation.composable.LocationServiceDialog
+import com.giraffe.myweatherapp.presentation.composable.LocationPermissionDialog
 import com.giraffe.myweatherapp.presentation.composable.TemperatureRangeCard
 import com.giraffe.myweatherapp.presentation.model.HomeUiState
+import com.giraffe.myweatherapp.presentation.utils.isLocationPermissionPermanentlyDeclined
+import com.giraffe.myweatherapp.presentation.utils.isLocationServicesEnabled
+import com.giraffe.myweatherapp.presentation.utils.launchPermissionSettings
 import com.giraffe.myweatherapp.ui.theme.MyWeatherAppTheme
 import com.giraffe.myweatherapp.ui.theme.darkBlue
 import com.giraffe.myweatherapp.ui.theme.fontFamily
@@ -51,11 +62,37 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
     val state by viewModel.state.collectAsState()
-    HomeContent(state)
+    HomeContent(state, viewModel)
 }
 
 @Composable
-fun HomeContent(state: HomeUiState) {
+fun HomeContent(state: HomeUiState, events: HomeScreenEvents) {
+    val context = LocalContext.current
+    val activity = LocalActivity.current
+    val permissionsToRequest: List<String> = listOf(
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION
+    )
+    val multiplePermissionsResultLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+        onResult = { permissions ->
+            val isGranted = !permissions.containsValue(false)
+            if (isGranted) {
+                isLocationServicesEnabled(context = context) { isEnabled ->
+                    if (isEnabled) {
+                        events.getCurrentLocation()
+                    } else {
+                        events.setLocationServiceFlag(false)
+                    }
+                }
+            } else {
+                events.setLocationPermissionFlag(false)
+            }
+        },
+    )
+    LaunchedEffect(Unit) {
+        multiplePermissionsResultLauncher.launch(permissionsToRequest.toTypedArray())
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -224,7 +261,23 @@ fun HomeContent(state: HomeUiState) {
                 }
             }
         }
-
+        if (state.isLocationPermissionDialogVisible) {
+            LocationPermissionDialog(
+                isPermanentlyDeclined = isLocationPermissionPermanentlyDeclined(activity),
+                onDismiss = {},
+                onOkClick = {
+                    multiplePermissionsResultLauncher.launch(permissionsToRequest.toTypedArray())
+                },
+                onGoToAppSettingsClick = { launchPermissionSettings(context) },
+            )
+        }
+        if (state.isLocationServiceDialogVisible) {
+            LocationServiceDialog(context) {
+                isLocationServicesEnabled(context) { isEnable ->
+                    events.setLocationServiceFlag(isEnable)
+                }
+            }
+        }
     }
 }
 

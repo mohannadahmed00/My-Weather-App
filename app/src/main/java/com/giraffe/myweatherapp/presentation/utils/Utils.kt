@@ -1,5 +1,15 @@
 package com.giraffe.myweatherapp.presentation.utils
 
+import android.Manifest
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.LocationManager
+import android.net.Uri
+import android.provider.Settings
+import androidx.activity.ComponentActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import com.giraffe.myweatherapp.R
 import java.time.LocalDate
 import java.time.format.TextStyle
@@ -120,3 +130,56 @@ private val weatherIconsAndDescriptionsAndDescription = mapOf(
         description = "Thunderstorm with heavy hail"
     )
 )
+
+
+fun isLocationServicesEnabled(context: Context, onResult: (Boolean) -> Unit) {
+    val localeManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    val isGpsEnabled = try {
+        localeManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+    } catch (_: Exception) {
+        false
+    }
+
+    val isNetworkEnabled = try {
+        localeManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+    } catch (_: Exception) {
+        false
+    }
+    onResult(isGpsEnabled || isNetworkEnabled)
+}
+
+fun areLocationPermissionsGranted(context: Context): Boolean {
+    return (ActivityCompat.checkSelfPermission(
+        context, Manifest.permission.ACCESS_FINE_LOCATION
+    ) == PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(
+                context, Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED)
+}
+
+fun isLocationPermissionPermanentlyDeclined(activity: ComponentActivity): Boolean{
+    val isFinePermanentlyDeclined = !shouldShowRequestPermissionRationale(
+        activity,
+        Manifest.permission.ACCESS_FINE_LOCATION,
+    )
+    val isCoarsePermanentlyDeclined = !shouldShowRequestPermissionRationale(
+        activity,
+        Manifest.permission.ACCESS_COARSE_LOCATION,
+    )
+    return (isFinePermanentlyDeclined || isCoarsePermanentlyDeclined)
+}
+
+fun getDeclinedDescription(isPermanentlyDeclined: Boolean): String {
+    return if (isPermanentlyDeclined) {
+        "It seems you permanently declined location permission. You can go to app settings to grant it."
+    } else {
+        "This app needs access to your location permission so that you can get the right forecast."
+    }
+}
+
+fun launchPermissionSettings(context: Context) {
+    val intent = Intent()
+    intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+    intent.data = Uri.fromParts("package", context.packageName, null)
+    context.startActivity(intent)
+}

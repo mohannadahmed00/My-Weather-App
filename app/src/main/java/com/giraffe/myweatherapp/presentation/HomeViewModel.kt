@@ -9,26 +9,22 @@ import com.giraffe.myweatherapp.presentation.model.HomeUiState
 import com.giraffe.myweatherapp.presentation.utils.getWeatherDescription
 import com.giraffe.myweatherapp.presentation.utils.getWeatherIcon
 import com.giraffe.myweatherapp.presentation.utils.toUi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class HomeViewModel(private val dataSource: DataSource) : ViewModel() {
+class HomeViewModel(private val dataSource: DataSource) : ViewModel(), HomeScreenEvents {
     private val _state = MutableStateFlow(HomeUiState())
     val state = _state.asStateFlow()
 
-    init {
-        getForecast()
-    }
-
-    private fun getForecast() {
+    private fun getForecast(lat: Double, lon: Double) {
         viewModelScope.launch {
-            dataSource.getForecast()
+            dataSource.getForecast(lat, lon)
                 .onSuccess { data ->
                     _state.update {
                         it.copy(
-                            locationName = data.locationName,
                             currentWeatherIcon = getWeatherIcon(
                                 data.currentWeatherCode,
                                 data.isDay
@@ -50,6 +46,28 @@ class HomeViewModel(private val dataSource: DataSource) : ViewModel() {
                     }
                 }.onError { error ->
                     _state.update { it.copy(error = error) }
+                }
+        }
+    }
+
+    override fun setLocationServiceFlag(isEnabled: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _state.update { it.copy(isLocationServiceDialogVisible = !isEnabled) }
+        }
+    }
+
+    override fun setLocationPermissionFlag(isGranted: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _state.update { it.copy(isLocationPermissionDialogVisible = !isGranted) }
+        }
+    }
+
+    override fun getCurrentLocation() {
+        viewModelScope.launch(Dispatchers.IO) {
+            dataSource.getCurrentLocation()
+                .onSuccess { location ->
+                    getForecast(location.latitude, location.longitude)
+                    _state.update { it.copy(locationName = location.locationName) }
                 }
         }
     }

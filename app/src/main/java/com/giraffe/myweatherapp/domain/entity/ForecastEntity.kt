@@ -1,7 +1,6 @@
 package com.giraffe.myweatherapp.domain.entity
 
 data class ForecastEntity(
-    val locationName: String,
     val isDay: Boolean,
     val currentWeatherCode: Int,
     val currentTemperature: Double,
