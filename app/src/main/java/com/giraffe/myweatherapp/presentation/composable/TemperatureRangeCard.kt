@@ -31,8 +31,8 @@ import com.giraffe.myweatherapp.ui.theme.fontFamily
 @Composable
 fun TemperatureRangeCard(
     modifier: Modifier = Modifier,
-    highTemperature: Int = 32,
-    lowTemperature: Int = 20,
+    highTemperature: Double = 32.0,
+    lowTemperature: Double = 20.0,
 ) {
     Box(
         modifier = modifier.background(

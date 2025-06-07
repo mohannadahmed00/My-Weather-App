@@ -40,6 +40,7 @@ fun DayCard(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
+            modifier = Modifier.weight(1f),
             text = day.dayName,
             style = TextStyle(
                 fontFamily = fontFamily,
@@ -49,11 +50,14 @@ fun DayCard(
             )
         )
         Image(
-            modifier = Modifier.padding(horizontal = 40.dp),
+            modifier = Modifier
+                .padding(horizontal = 9.5.dp)
+                .weight(1f),
             painter = painterResource(day.iconRes),
             contentDescription = "icon"
         )
         Row(
+            modifier = Modifier.weight(103 / 91f),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
@@ -68,7 +72,7 @@ fun DayCard(
                     colorFilter = ColorFilter.tint(darkBlue.copy(alpha = .6f))
                 )
                 Text(
-                    text = "${day.highTemperature}°C",
+                    text = "${day.highTemperature.toInt()}°C",
                     style = TextStyle(
                         fontFamily = fontFamily,
                         fontWeight = FontWeight.W500,
@@ -98,7 +102,7 @@ fun DayCard(
                     colorFilter = ColorFilter.tint(darkBlue.copy(alpha = .6f))
                 )
                 Text(
-                    text = "${day.lowTemperature}°C",
+                    text = "${day.lowTemperature.toInt()}°C",
                     style = TextStyle(
                         fontFamily = fontFamily,
                         fontWeight = FontWeight.W500,

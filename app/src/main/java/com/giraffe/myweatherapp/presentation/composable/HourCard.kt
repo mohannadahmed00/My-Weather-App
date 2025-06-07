@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -46,6 +47,7 @@ fun HourCard(
         ) {
             Image(
                 modifier = Modifier
+                    .height(58.dp)
                     .padding(horizontal = 12.dp)
                     .offset(y = (-12).dp),
                 painter = painterResource(hour.iconRes),

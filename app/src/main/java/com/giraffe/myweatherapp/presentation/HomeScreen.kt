@@ -1,4 +1,4 @@
-package com.giraffe.myweatherapp.presentation.screen
+package com.giraffe.myweatherapp.presentation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -39,8 +39,7 @@ import com.giraffe.myweatherapp.presentation.composable.DayCard
 import com.giraffe.myweatherapp.presentation.composable.DetailCard
 import com.giraffe.myweatherapp.presentation.composable.HourCard
 import com.giraffe.myweatherapp.presentation.composable.TemperatureRangeCard
-import com.giraffe.myweatherapp.presentation.viewmodel.HomeUiState
-import com.giraffe.myweatherapp.presentation.viewmodel.HomeViewModel
+import com.giraffe.myweatherapp.presentation.model.HomeUiState
 import com.giraffe.myweatherapp.ui.theme.MyWeatherAppTheme
 import com.giraffe.myweatherapp.ui.theme.darkBlue
 import com.giraffe.myweatherapp.ui.theme.fontFamily
@@ -50,10 +49,7 @@ import com.giraffe.myweatherapp.ui.theme.white
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun HomeScreen(
-    modifier: Modifier = Modifier,
-    viewModel: HomeViewModel = koinViewModel()
-) {
+fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
     val state by viewModel.state.collectAsState()
     HomeContent(state)
 }
@@ -131,7 +127,7 @@ fun HomeContent(state: HomeUiState) {
                     .padding(start = 12.dp, end = 12.dp, top = 24.dp),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                DetailCard(modifier = Modifier.weight(1f), value = "${state.windFast} KM/h")
+                DetailCard(modifier = Modifier.weight(1f), value = "${state.windSpeed} KM/h")
                 DetailCard(
                     modifier = Modifier.weight(1f),
                     iconRes = R.drawable.humidity,
