@@ -106,6 +106,10 @@ fun HomeContent(state: HomeUiState, events: HomeViewModel) {
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            /*Button({ events.getForecastOfLocation(25.77, -80.21) }) { Text("Miami") }
+            Button({ events.getForecastOfLocation(59.88, 10.75) }) { Text("Oslo") }
+            Button({ events.getForecastOfLocation(-33.87, 151.23) }) { Text("Sydney") }
+            Button({ events.getForecastOfLocation(50.82, -0.13) }) { Text("Brighton") }*/
             LocationCard(
                 modifier = Modifier.clickable { isLarge = !isLarge },
                 locationName = state.locationName
@@ -163,8 +167,8 @@ fun HomeContent(state: HomeUiState, events: HomeViewModel) {
                 DetailCard(
                     modifier = Modifier.weight(1f),
                     iconRes = R.drawable.uv,
-                    value = "${state.humidity}%",
-                    label = "Humidity"
+                    value = "${state.uv}",
+                    label = "UV Index"
                 )
                 DetailCard(
                     modifier = Modifier.weight(1f),
@@ -199,7 +203,11 @@ fun HomeContent(state: HomeUiState, events: HomeViewModel) {
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 contentPadding = PaddingValues(horizontal = 12.dp)
             ) {
-                items(state.hourlyTemperatures) { HourCard(hour = it) }
+                items(state.hourlyTemperatures) {
+                    HourCard(
+                        hour = it
+                    )
+                }
             }
             Text(
                 modifier = Modifier
