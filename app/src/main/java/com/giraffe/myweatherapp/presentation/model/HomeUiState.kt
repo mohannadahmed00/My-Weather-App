@@ -7,6 +7,7 @@ data class HomeUiState(
     val locationName: String = "---",
     val currentWeatherIcon: Int = R.drawable.day_mainly_clear,
     val currentTemperature: Double = 0.0,
+    val isDay: Boolean = true,
     val currentWeatherDescription: String = "---",
     val currentHighTemperature: Double = 0.0,
     val currentLowTemperature: Double = 0.0,

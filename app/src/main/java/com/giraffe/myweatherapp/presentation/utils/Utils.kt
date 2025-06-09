@@ -15,6 +15,7 @@ import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
 
+//region Weather Utils
 //2025-06-10T06:00
 fun isDayTime(dateTimeString: String) =
     dateTimeString.substringAfter("T").substringBefore(":").toInt() in 6..18
@@ -130,8 +131,9 @@ private val weatherIconsAndDescriptionsAndDescription = mapOf(
         description = "Thunderstorm with heavy hail"
     )
 )
+//endregion
 
-
+//region Location Utils
 fun isLocationServicesEnabled(context: Context, onResult: (Boolean) -> Unit) {
     val localeManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     val isGpsEnabled = try {
@@ -157,7 +159,7 @@ fun areLocationPermissionsGranted(context: Context): Boolean {
             ) == PackageManager.PERMISSION_GRANTED)
 }
 
-fun isLocationPermissionPermanentlyDeclined(activity: ComponentActivity): Boolean{
+fun isLocationPermissionPermanentlyDeclined(activity: ComponentActivity): Boolean {
     val isFinePermanentlyDeclined = !shouldShowRequestPermissionRationale(
         activity,
         Manifest.permission.ACCESS_FINE_LOCATION,
@@ -183,3 +185,4 @@ fun launchPermissionSettings(context: Context) {
     intent.data = Uri.fromParts("package", context.packageName, null)
     context.startActivity(intent)
 }
+//endregion

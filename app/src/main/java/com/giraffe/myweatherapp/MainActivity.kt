@@ -10,11 +10,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.giraffe.myweatherapp.presentation.HomeScreen
+import com.giraffe.myweatherapp.presentation.HomeViewModel
 import com.giraffe.myweatherapp.ui.theme.MyWeatherAppTheme
+import org.koin.androidx.compose.koinViewModel
 
 val LocalActivity = staticCompositionLocalOf<ComponentActivity> { error("LocalContext") }
 
@@ -24,9 +28,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MyWeatherAppTheme {
+            val viewModel = koinViewModel<HomeViewModel>()
+            val state by viewModel.state.collectAsState()
+            MyWeatherAppTheme(darkTheme = !state.isDay) {
                 Scaffold(modifier = Modifier.fillMaxSize()) {
-                    CompositionLocalProvider(LocalActivity provides this) { HomeScreen() }
+                    CompositionLocalProvider(LocalActivity provides this) {
+                        HomeScreen()
+                    }
+                    //PlaygroundScreen()
                 }
             }
         }

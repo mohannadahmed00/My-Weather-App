@@ -14,13 +14,12 @@ import com.giraffe.myweatherapp.presentation.utils.getDeclinedDescription
 @Composable
 fun LocationPermissionDialog(
     isPermanentlyDeclined: Boolean,
-    onDismiss: () -> Unit,
-    onOkClick: () -> Unit,
     onGoToAppSettingsClick: () -> Unit,
-    modifier: Modifier = Modifier
+    onOkClick: () -> Unit,
+    onDismiss: () -> Unit,
 ) {
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = { onDismiss() },
         confirmButton = {
             Text(
                 text = if (isPermanentlyDeclined) {
@@ -47,6 +46,5 @@ fun LocationPermissionDialog(
         text = {
             Text(text = getDeclinedDescription(isPermanentlyDeclined = isPermanentlyDeclined))
         },
-        modifier = modifier
     )
 }

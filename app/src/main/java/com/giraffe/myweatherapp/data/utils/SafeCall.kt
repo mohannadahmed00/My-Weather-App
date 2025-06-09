@@ -35,6 +35,7 @@ suspend inline fun <reified T> responseToResult(response: HttpResponse): Result<
                 Result.Error(NetworkError.SERIALIZATION)
             }
         }
+
         408 -> Result.Error(NetworkError.REQUEST_TIMEOUT)
         429 -> Result.Error(NetworkError.TOO_MANY_REQUESTS)
         in 500..599 -> Result.Error(NetworkError.SERVER_ERROR)

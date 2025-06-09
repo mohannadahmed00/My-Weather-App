@@ -20,7 +20,7 @@ class HomeViewModel(private val dataSource: DataSource) : ViewModel(), HomeScree
     val state = _state.asStateFlow()
 
     private fun getForecast(lat: Double, lon: Double) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             dataSource.getForecast(lat, lon)
                 .onSuccess { data ->
                     _state.update {
@@ -35,6 +35,7 @@ class HomeViewModel(private val dataSource: DataSource) : ViewModel(), HomeScree
                             currentLowTemperature = data.currentLowTemperature,
                             windSpeed = data.windSpeed,
                             humidity = data.humidity,
+                            isDay = data.isDay,
                             rain = data.rain,
                             uv = data.uvIndex,
                             pressure = data.pressure,
@@ -44,9 +45,32 @@ class HomeViewModel(private val dataSource: DataSource) : ViewModel(), HomeScree
                             error = null
                         )
                     }
+                }
+                .onError { error ->
+                    _state.update { it.copy(error = error) }
+                }
+        }
+    }
+
+    override fun getForecastOfCurrentLocation() {
+        viewModelScope.launch(Dispatchers.IO) {
+            dataSource.getCurrentLocation()
+                .onSuccess { location ->
+                    getForecastOfLocation(location.latitude, location.longitude)
                 }.onError { error ->
                     _state.update { it.copy(error = error) }
                 }
+        }
+    }
+
+    override fun getForecastOfLocation(lat: Double, lon: Double) {
+        viewModelScope.launch(Dispatchers.IO) {
+            dataSource.getAddress(lat, lon).onSuccess { address ->
+                _state.update { it.copy(locationName = address) }
+                getForecast(lat, lon)
+            }.onError { error ->
+                _state.update { it.copy(error = error) }
+            }
         }
     }
 
@@ -59,16 +83,6 @@ class HomeViewModel(private val dataSource: DataSource) : ViewModel(), HomeScree
     override fun setLocationPermissionFlag(isGranted: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             _state.update { it.copy(isLocationPermissionDialogVisible = !isGranted) }
-        }
-    }
-
-    override fun getCurrentLocation() {
-        viewModelScope.launch(Dispatchers.IO) {
-            dataSource.getCurrentLocation()
-                .onSuccess { location ->
-                    getForecast(location.latitude, location.longitude)
-                    _state.update { it.copy(locationName = location.locationName) }
-                }
         }
     }
 }

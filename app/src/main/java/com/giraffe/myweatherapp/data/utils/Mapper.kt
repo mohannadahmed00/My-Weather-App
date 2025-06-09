@@ -3,17 +3,9 @@ package com.giraffe.myweatherapp.data.utils
 import com.giraffe.myweatherapp.data.response.Daily
 import com.giraffe.myweatherapp.data.response.ForecastResponse
 import com.giraffe.myweatherapp.data.response.Hourly
-import com.giraffe.myweatherapp.data.response.LocationResponse
 import com.giraffe.myweatherapp.domain.entity.DailyTemperatureEntity
 import com.giraffe.myweatherapp.domain.entity.ForecastEntity
 import com.giraffe.myweatherapp.domain.entity.HourlyTemperatureEntity
-import com.giraffe.myweatherapp.domain.entity.LocationEntity
-
-fun LocationResponse.toEntity() = LocationEntity(
-    locationName = locationName,
-    latitude = latitude,
-    longitude = longitude
-)
 
 fun ForecastResponse.toEntity(): ForecastEntity {
     return ForecastEntity(

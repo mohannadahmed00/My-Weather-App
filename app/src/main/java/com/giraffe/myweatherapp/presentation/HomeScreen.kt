@@ -1,8 +1,5 @@
 package com.giraffe.myweatherapp.presentation
 
-import android.Manifest
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -12,51 +9,43 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.giraffe.myweatherapp.LocalActivity
 import com.giraffe.myweatherapp.R
+import com.giraffe.myweatherapp.presentation.composable.CurrentInfoCard
 import com.giraffe.myweatherapp.presentation.composable.DayCard
 import com.giraffe.myweatherapp.presentation.composable.DetailCard
 import com.giraffe.myweatherapp.presentation.composable.HourCard
-import com.giraffe.myweatherapp.presentation.composable.LocationServiceDialog
-import com.giraffe.myweatherapp.presentation.composable.LocationPermissionDialog
-import com.giraffe.myweatherapp.presentation.composable.TemperatureRangeCard
+import com.giraffe.myweatherapp.presentation.composable.LocationCard
+import com.giraffe.myweatherapp.presentation.composable.LocationRequirements
 import com.giraffe.myweatherapp.presentation.model.HomeUiState
-import com.giraffe.myweatherapp.presentation.utils.isLocationPermissionPermanentlyDeclined
-import com.giraffe.myweatherapp.presentation.utils.isLocationServicesEnabled
-import com.giraffe.myweatherapp.presentation.utils.launchPermissionSettings
 import com.giraffe.myweatherapp.ui.theme.MyWeatherAppTheme
 import com.giraffe.myweatherapp.ui.theme.darkBlue
 import com.giraffe.myweatherapp.ui.theme.fontFamily
-import com.giraffe.myweatherapp.ui.theme.gray
-import com.giraffe.myweatherapp.ui.theme.lightBlue
-import com.giraffe.myweatherapp.ui.theme.white
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -66,37 +55,19 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
 }
 
 @Composable
-fun HomeContent(state: HomeUiState, events: HomeScreenEvents) {
-    val context = LocalContext.current
-    val activity = LocalActivity.current
-    val permissionsToRequest: List<String> = listOf(
-        Manifest.permission.ACCESS_FINE_LOCATION,
-        Manifest.permission.ACCESS_COARSE_LOCATION
-    )
-    val multiplePermissionsResultLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestMultiplePermissions(),
-        onResult = { permissions ->
-            val isGranted = !permissions.containsValue(false)
-            if (isGranted) {
-                isLocationServicesEnabled(context = context) { isEnabled ->
-                    if (isEnabled) {
-                        events.getCurrentLocation()
-                    } else {
-                        events.setLocationServiceFlag(false)
-                    }
-                }
-            } else {
-                events.setLocationPermissionFlag(false)
-            }
-        },
-    )
-    LaunchedEffect(Unit) {
-        multiplePermissionsResultLauncher.launch(permissionsToRequest.toTypedArray())
-    }
+fun HomeContent(state: HomeUiState, events: HomeViewModel) {
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(brush = Brush.verticalGradient(listOf(lightBlue, white)))
+            .background(
+                brush = Brush.verticalGradient(
+                    listOf(
+                        MaterialTheme.colorScheme.primary,
+                        MaterialTheme.colorScheme.secondary
+                    )
+                )
+            )
     ) {
         Column(
             modifier = Modifier
@@ -104,57 +75,23 @@ fun HomeContent(state: HomeUiState, events: HomeScreenEvents) {
                 .padding(vertical = 24.dp)
                 .statusBarsPadding()
                 .fillMaxSize(),
-
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(
-                modifier = Modifier.padding(bottom = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Image(
-                    modifier = Modifier.size(24.dp),
-                    painter = painterResource(R.drawable.location),
-                    contentDescription = "location",
-                    colorFilter = ColorFilter.tint(gray)
-                )
-                Text(
-                    text = state.locationName,
-                    style = TextStyle(
-                        fontFamily = fontFamily,
-                        fontWeight = FontWeight.W500,
-                        fontSize = 16.sp,
-                        color = gray
-                    )
-                )
-            }
+            LocationCard(
+                modifier = Modifier,
+                locationName = state.locationName
+            )
             Image(
                 modifier = Modifier
-                    .height(200.dp)
-                    .fillMaxWidth()
-                    .padding(bottom = 12.dp),
+                    .padding(start = 65.dp, end = 65.dp, bottom = 12.dp)
+                    .aspectRatio(1f)
+                    .shadow(150.dp, spotColor = MaterialTheme.colorScheme.surfaceBright),
                 painter = painterResource(state.currentWeatherIcon),
                 contentDescription = "icon",
             )
-            Text(
-                text = "${state.currentTemperature}°C",
-                style = TextStyle(
-                    fontFamily = fontFamily,
-                    fontWeight = FontWeight.W600,
-                    fontSize = 64.sp,
-                    color = darkBlue
-                )
-            )
-            Text(
-                modifier = Modifier.padding(bottom = 12.dp),
-                text = state.currentWeatherDescription,
-                style = TextStyle(
-                    fontFamily = fontFamily,
-                    fontWeight = FontWeight.W500,
-                    fontSize = 16.sp,
-                    color = darkBlue.copy(alpha = .6f)
-                )
-            )
-            TemperatureRangeCard(
+            CurrentInfoCard(
+                temperature = state.currentTemperature,
+                description = state.currentWeatherDescription,
                 highTemperature = state.currentHighTemperature,
                 lowTemperature = state.currentLowTemperature
             )
@@ -212,7 +149,7 @@ fun HomeContent(state: HomeUiState, events: HomeScreenEvents) {
                     fontFamily = fontFamily,
                     fontWeight = FontWeight.W600,
                     fontSize = 20.sp,
-                    color = darkBlue
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
             )
             LazyRow(
@@ -231,7 +168,7 @@ fun HomeContent(state: HomeUiState, events: HomeScreenEvents) {
                     fontFamily = fontFamily,
                     fontWeight = FontWeight.W600,
                     fontSize = 20.sp,
-                    color = darkBlue
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
             )
             Column(
@@ -240,10 +177,13 @@ fun HomeContent(state: HomeUiState, events: HomeScreenEvents) {
                     .padding(horizontal = 12.dp)
                     .border(
                         width = 1.dp,
-                        color = darkBlue.copy(alpha = .08f),
+                        color = MaterialTheme.colorScheme.outline,
                         shape = RoundedCornerShape(24.dp)
                     )
-                    .background(white.copy(alpha = .6f), shape = RoundedCornerShape(24.dp))
+                    .background(
+                        MaterialTheme.colorScheme.primaryContainer,
+                        shape = RoundedCornerShape(24.dp)
+                    )
             ) {
                 state.dailyTemperatures.forEachIndexed { index, item ->
                     DayCard(
@@ -261,29 +201,20 @@ fun HomeContent(state: HomeUiState, events: HomeScreenEvents) {
                 }
             }
         }
-        if (state.isLocationPermissionDialogVisible) {
-            LocationPermissionDialog(
-                isPermanentlyDeclined = isLocationPermissionPermanentlyDeclined(activity),
-                onDismiss = {},
-                onOkClick = {
-                    multiplePermissionsResultLauncher.launch(permissionsToRequest.toTypedArray())
-                },
-                onGoToAppSettingsClick = { launchPermissionSettings(context) },
-            )
-        }
-        if (state.isLocationServiceDialogVisible) {
-            LocationServiceDialog(context) {
-                isLocationServicesEnabled(context) { isEnable ->
-                    events.setLocationServiceFlag(isEnable)
-                }
-            }
+        LocationRequirements(
+            isLocationPermissionDialogVisible = state.isLocationPermissionDialogVisible,
+            isLocationServiceDialogVisible = state.isLocationServiceDialogVisible,
+            setLocationPermissionFlag = events::setLocationPermissionFlag,
+            setLocationServiceFlag = events::setLocationServiceFlag,
+        ) {
+            events.getForecastOfCurrentLocation()
         }
     }
 }
 
 @Preview
 @Composable
-fun HomeScreenPreview() {
+private fun Preview() {
     MyWeatherAppTheme {
         HomeScreen()
     }

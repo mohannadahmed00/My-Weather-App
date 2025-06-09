@@ -11,3 +11,7 @@ enum class NetworkError: DomainError {
     UNKNOWN,
     LOCATION_FETCH_ERROR,
 }
+
+enum class LocationError: DomainError {
+    INVALID_LOCATION,
+}

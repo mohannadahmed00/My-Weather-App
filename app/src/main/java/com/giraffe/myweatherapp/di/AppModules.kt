@@ -2,6 +2,8 @@ package com.giraffe.myweatherapp.di
 
 import com.giraffe.myweatherapp.data.DataSource
 import com.giraffe.myweatherapp.data.IDataSource
+import com.giraffe.myweatherapp.data.location.AddressProvider
+import com.giraffe.myweatherapp.data.location.GeoCoderAddressProvider
 import com.giraffe.myweatherapp.data.location.GoogleLocationProvider
 import com.giraffe.myweatherapp.data.location.LocationProvider
 import com.giraffe.myweatherapp.data.utils.HttpClientFactory
@@ -13,8 +15,9 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val appModule = module {
+    single { GeoCoderAddressProvider(androidContext()) }.bind<AddressProvider>()
     single { GoogleLocationProvider(androidContext()) }.bind<LocationProvider>()
     single { HttpClientFactory.create(Android.create()) }
-    single { DataSource(get(),get()) }.bind<IDataSource>()
+    single { DataSource(get(), get(), get()) }.bind<IDataSource>()
     viewModel { HomeViewModel(get()) }
 }

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,9 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.giraffe.myweatherapp.R
 import com.giraffe.myweatherapp.ui.theme.MyWeatherAppTheme
-import com.giraffe.myweatherapp.ui.theme.darkBlue
 import com.giraffe.myweatherapp.ui.theme.fontFamily
-import com.giraffe.myweatherapp.ui.theme.white
 
 @Composable
 fun DetailCard(
@@ -30,8 +29,8 @@ fun DetailCard(
     iconRes: Int = R.drawable.fast_wind,
     value: String = "13 KM/h",
     label: String = "Wind",
-    backgroundColor: Color = white.copy(alpha = .7f),
-    borderColor: Color = darkBlue.copy(alpha = .08f),
+    backgroundColor: Color = MaterialTheme.colorScheme.primaryContainer,
+    borderColor: Color = MaterialTheme.colorScheme.outline,
 ) {
     Box(
         modifier = modifier
@@ -54,11 +53,12 @@ fun DetailCard(
             )
             Text(
                 modifier = Modifier.padding(bottom = 2.dp),
-                text = value, style = TextStyle(
+                text = value,
+                style = TextStyle(
                     fontFamily = fontFamily,
                     fontWeight = FontWeight.W500,
                     fontSize = 20.sp,
-                    color = darkBlue.copy(alpha = .87f)
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             )
             Text(
@@ -66,7 +66,7 @@ fun DetailCard(
                     fontFamily = fontFamily,
                     fontWeight = FontWeight.W400,
                     fontSize = 14.sp,
-                    color = darkBlue.copy(alpha = .6f)
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             )
         }
@@ -75,7 +75,7 @@ fun DetailCard(
 
 @Preview
 @Composable
-fun DetailCardPreview() {
+private fun Preview() {
     MyWeatherAppTheme {
         DetailCard()
     }
